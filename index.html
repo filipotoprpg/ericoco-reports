@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ericoco Daily Reports — Arquivo de Vigilância</title>
+<link rel="icon" type="image/png" href="assets/avatar.png">
 <link rel="stylesheet" href="style.css">
-<link rel="icon" href="assets/GRSrswl.png">
 </head>
 <body class="home">
 
@@ -15,11 +15,11 @@
 
   <nav class="navbar">
     <div class="navbar-inner">
-      <a class="nav-logo" href="index.html"><span class="nav-dot"></span>ERICOCO <span>DAILY REPORTS</span></a>
+      <a class="nav-logo" href="/"><span class="nav-dot"></span>ERICOCO <span>DAILY REPORTS</span></a>
       <div class="nav-links">
-        <a href="index.html">HOME</a>
-        <a href="relatorios.html">CASOS</a>
-        <a href="sobre.html">SOBRE</a>
+        <a href="/">HOME</a>
+        <a href="relatorios">CASOS</a>
+        <a href="sobre">SOBRE</a>
       </div>
     </div>
   </nav>
@@ -40,7 +40,7 @@
 
       <div class="count-block">
         <p class="count-label">Ericoco não abre <b>Persona 5 Royal</b> há</p>
-        <div class="count-number">126<span class="count-unit">DIAS</span></div>
+        <div class="count-number"><span id="dayCount">126</span><span class="count-unit">DIAS</span></div>
         <p class="count-sub">≈ 4 meses de vigilância contínua e ininterrupta</p>
       </div>
 
@@ -57,16 +57,16 @@
       <p class="narrative">Ericoco tem apenas <b>um</b> objetivo na vida: jogar <b>🎮 Persona 5 Royal</b>. Simples, direto, sem mistério.</p>
       <p class="narrative">O problema é que, todo santo dia, ele encontra uma forma completamente nova e inexplicável de <span class="accent">não</span> fazer isso. Já foram meses. O Persona 5 continua lá, na estante, esperando.</p>
       <p class="narrative">Este arquivo documenta, caso a caso, os desvios de rotina registrados.</p>
-      <p class="narrative"><a class="more-link" href="sobre.html">SAIBA MAIS SOBRE O ARQUIVO →</a></p>
+      <p class="narrative"><a class="more-link" href="sobre">SAIBA MAIS SOBRE O ARQUIVO →</a></p>
     </div>
 
     <div class="archive" id="archive">
       <div class="archive-head">
         <p class="archive-label">ÚLTIMO CASO REGISTRADO</p>
-        <a class="more-link" href="relatorios.html">VER ARQUIVO COMPLETO →</a>
+        <a class="more-link" href="relatorios">VER ARQUIVO COMPLETO →</a>
       </div>
       <div class="day-grid single">
-        <a class="day-btn" href="relatorio-2026-08-17.html">
+        <a class="day-btn" href="relatorio-2026-08-17">
           <span class="day-num">17</span>
           <span class="day-month">AGO</span>
           <span class="day-tag">CRÍTICO</span>
@@ -80,6 +80,18 @@
     </div>
 
   </div>
+  <script>
+    // Conta os dias desde 13/04/2026 (início da vigilância) até hoje, automaticamente.
+    (function () {
+      var inicio = new Date(2026, 3, 13); // mês é 0-indexado: 3 = abril
+      var hoje = new Date();
+      var inicioMeiaNoite = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
+      var hojeMeiaNoite = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+      var dias = Math.round((hojeMeiaNoite - inicioMeiaNoite) / 86400000);
 
+      var el = document.getElementById('dayCount');
+      if (el) el.textContent = dias;
+    })();
+  </script>
 </body>
 </html>
