@@ -526,17 +526,19 @@
 
 
 <script>
-// ── CENSURA ALEATÓRIA ────────────────────────────────────────────────
+// ── CENSURA DINÂMICA ─────────────────────────────────────────────────
 (function() {
   const CENSOR_RATIO = 0.11;
   const CENSOR_CHAR  = '█';
+  const INTERVAL_MS  = 2000;
 
-  // Walk all text nodes inside .arg-wrap
+  // Coleta os nós de texto originais ANTES de qualquer modificação
+  const originalNodes = []; // { parent, originalText, placeholder }
+
   function getTextNodes(root) {
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode(node) {
         const tag = node.parentElement && node.parentElement.tagName;
-        // skip script/style/title nodes
         if (['SCRIPT','STYLE','TITLE'].includes(tag)) return NodeFilter.FILTER_REJECT;
         if (!node.textContent.trim()) return NodeFilter.FILTER_REJECT;
         return NodeFilter.FILTER_ACCEPT;
@@ -550,27 +552,34 @@
   function censorText(text) {
     return text.split('').map(ch => {
       if (ch === ' ' || ch === '\n' || ch === '\r') return ch;
-      if (/[\u2500-\u259F█▓▒░]/.test(ch)) return ch; // skip already-noise chars
+      if (/[\u2500-\u259F█▓▒░▓]/.test(ch)) return ch;
       return Math.random() < CENSOR_RATIO
         ? '<span style="background:#fff;color:#fff;user-select:none;border-radius:1px;">' + CENSOR_CHAR + '</span>'
         : ch;
     }).join('');
   }
 
+  function applyCensor() {
+    originalNodes.forEach(({ span, original }) => {
+      span.innerHTML = censorText(original);
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     const wrap = document.querySelector('.arg-wrap');
     if (!wrap) return;
 
-    const nodes = getTextNodes(wrap);
-    nodes.forEach(node => {
+    // Substitui cada nó de texto por um <span> que guardamos pra reusar
+    getTextNodes(wrap).forEach(node => {
       const original = node.textContent;
-      const censored = censorText(original);
-      if (censored !== original) {
-        const span = document.createElement('span');
-        span.innerHTML = censored;
-        node.parentNode.replaceChild(span, node);
-      }
+      const span = document.createElement('span');
+      span.innerHTML = censorText(original);
+      node.parentNode.replaceChild(span, node);
+      originalNodes.push({ span, original });
     });
+
+    // Re-censura a cada 2 segundos com posições novas
+    setInterval(applyCensor, INTERVAL_MS);
   });
 })();
 </script>
