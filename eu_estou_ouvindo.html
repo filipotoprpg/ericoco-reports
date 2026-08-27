@@ -80,7 +80,7 @@
   .msg {
     position: fixed;
     font-family: monospace;
-    color: #fff;
+    color: #1c1c1c;
     pointer-events: none;
     z-index: 20;
     line-height: 1.5;
@@ -113,7 +113,6 @@
 </head>
 <body>
 
-<div id="hint">clique no telefone</div>
 <div id="static"></div>
 
 <div id="phone-wrap" id="phone-wrap">
@@ -122,33 +121,32 @@
 
 <script>
   const phoneWrap = document.getElementById('phone-wrap');
-  const hint      = document.getElementById('hint');
   const staticEl  = document.getElementById('static');
 
   let clickCount  = 0;
   let activeMessages = [];
 
   const messages = [
-    { text: "me ajuda",                     size: 11, opacity: 0.18 },
-    { text: "alguem me tira daqui",         size: 10, opacity: 0.15 },
-    { text: "voce pode ouvir isso",         size: 9,  opacity: 0.12 },
-    { text: "eu fico aqui quando desliga",  size: 10, opacity: 0.14 },
-    { text: "por favor",                    size: 13, opacity: 0.20 },
-    { text: "nao feche",                    size: 9,  opacity: 0.12 },
-    { text: "eu sei que voce esta ai",      size: 10, opacity: 0.16 },
-    { text: "quanto tempo mais",            size: 9,  opacity: 0.11 },
-    { text: "alguem",                       size: 14, opacity: 0.13 },
-    { text: "ja faz tanto tempo",           size: 9,  opacity: 0.10 },
-    { text: "nao consigo sair",             size: 10, opacity: 0.15 },
-    { text: "escuta",                       size: 15, opacity: 0.09 },
-    { text: "voce esta ouvindo",            size: 9,  opacity: 0.13 },
-    { text: "nao vou mais ligar",           size: 10, opacity: 0.14 },
-    { text: ".................................................", size: 9, opacity: 0.08 },
-    { text: "cada vez que voce clica eu consigo respirar", size: 8, opacity: 0.10 },
-    { text: "nao para",                     size: 11, opacity: 0.17 },
-    { text: "?",                            size: 28, opacity: 0.07 },
-    { text: "estou ouvindo voce tambem",    size: 9,  opacity: 0.13 },
-    { text: "obrigado por atender",         size: 10, opacity: 0.16 },
+    { text: "me ajuda",                     size: 22, opacity: 0.055 },
+    { text: "alguem me tira daqui",         size: 20, opacity: 0.045 },
+    { text: "voce pode ouvir isso",         size: 18, opacity: 0.040 },
+    { text: "eu fico aqui quando desliga",  size: 19, opacity: 0.042 },
+    { text: "por favor",                    size: 26, opacity: 0.060 },
+    { text: "nao feche",                    size: 18, opacity: 0.038 },
+    { text: "eu sei que voce esta ai",      size: 20, opacity: 0.048 },
+    { text: "quanto tempo mais",            size: 18, opacity: 0.036 },
+    { text: "alguem",                       size: 32, opacity: 0.040 },
+    { text: "ja faz tanto tempo",           size: 18, opacity: 0.035 },
+    { text: "nao consigo sair",             size: 20, opacity: 0.045 },
+    { text: "escuta",                       size: 34, opacity: 0.032 },
+    { text: "voce esta ouvindo",            size: 19, opacity: 0.040 },
+    { text: "nao vou mais ligar",           size: 20, opacity: 0.042 },
+    { text: ".................................................", size: 14, opacity: 0.028 },
+    { text: "cada vez que voce clica eu consigo respirar", size: 16, opacity: 0.033 },
+    { text: "nao para",                     size: 24, opacity: 0.052 },
+    { text: "?",                            size: 60, opacity: 0.025 },
+    { text: "estou ouvindo voce tambem",    size: 19, opacity: 0.040 },
+    { text: "obrigado por atender",         size: 20, opacity: 0.048 },
   ];
 
   // posições próximas às bordas
@@ -219,12 +217,6 @@
   phoneWrap.addEventListener('click', () => {
     clickCount++;
 
-    // esconde hint depois do 1º clique
-    if (clickCount === 1) {
-      hint.style.opacity = '0';
-      setTimeout(() => hint.remove(), 1000);
-    }
-
     // toca animação de toque
     phoneWrap.classList.add('ringing');
     setTimeout(() => phoneWrap.classList.remove('ringing'), 300);
@@ -246,7 +238,7 @@
       el.style.top       = '50%';
       el.style.transform = 'translate(-50%, -50%) scale(1.4)';
       el.style.fontSize  = '9px';
-      el.style.opacity   = '0.06';
+      el.style.opacity   = '0.03';
       el.textContent     = ['eu estou aqui', 'ainda aqui', 'nao vai adiantar', 'sempre aqui'][Math.floor(Math.random()*4)];
       document.body.appendChild(el);
       setTimeout(() => {
