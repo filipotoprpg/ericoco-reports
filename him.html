@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>...</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+    font-family: 'Courier New', Courier, monospace;
+  }
+
+  #screen {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  #timer {
+    color: #d6d6d6;
+    font-size: clamp(28px, 7vw, 90px);
+    letter-spacing: 4px;
+    text-shadow: 0 0 10px rgba(255,255,255,0.15);
+    position: relative;
+    z-index: 5;
+    white-space: nowrap;
+  }
+
+  /* glitch ocasional no timer */
+  #timer.txt-glitch {
+    animation: textGlitch 0.25s steps(2, end) 1;
+  }
+
+  #timer.txt-glitch::before,
+  #timer.txt-glitch::after {
+    content: attr(data-glitchtext);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    opacity: 0.7;
+  }
+
+  #timer.txt-glitch::before {
+    color: #ff2b2b;
+    clip-path: polygon(0 10%, 100% 10%, 100% 40%, 0 40%);
+    transform: translate(-4px, -2px);
+  }
+
+  #timer.txt-glitch::after {
+    color: #2bd7ff;
+    clip-path: polygon(0 60%, 100% 60%, 100% 90%, 0 90%);
+    transform: translate(4px, 2px);
+  }
+
+  @keyframes textGlitch {
+    0%   { transform: translate(0,0); }
+    25%  { transform: translate(-2px, 1px); }
+    50%  { transform: translate(2px, -1px); }
+    75%  { transform: translate(-1px, -1px); }
+    100% { transform: translate(0,0); }
+  }
+
+  #subtext {
+    color: #555;
+    font-size: clamp(10px, 1vw, 13px);
+    letter-spacing: 2px;
+    margin-top: 18px;
+    position: relative;
+    z-index: 5;
+    text-transform: lowercase;
+  }
+
+  /* ---------- CRT / SCANLINE ---------- */
+  #crt-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  #crt-overlay .scanlines {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.0) 0px,
+      rgba(0,0,0,0.15) 1px,
+      rgba(0,0,0,0.0) 2px,
+      rgba(0,0,0,0.0) 3px
+    );
+    mix-blend-mode: multiply;
+    animation: scanlineShift 8s linear infinite;
+  }
+
+  @keyframes scanlineShift {
+    0%   { background-position: 0 0; }
+    100% { background-position: 0 100px; }
+  }
+
+  #crt-overlay .vignette {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(0,0,0,0.75) 100%);
+  }
+
+  #crt-overlay .flicker {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(255,255,255,0.02);
+    animation: crtFlicker 6s infinite;
+  }
+
+  @keyframes crtFlicker {
+    0%, 100% { opacity: 0; }
+    92% { opacity: 0; }
+    93% { opacity: 1; }
+    94% { opacity: 0; }
+    97% { opacity: 0; }
+    98% { opacity: 0.6; }
+    99% { opacity: 0; }
+  }
+
+  #screen::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.25) 50%);
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 11;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    box-shadow: inset 0 0 200px rgba(0,0,0,0.9);
+    pointer-events: none;
+    z-index: 12;
+  }
+  /* ------------------------------------ */
+</style>
+</head>
+<body>
+
+<div id="screen">
+  <div id="timer">00:00:00:00</div>
+  <div id="subtext">volte dia 18 de setembro.</div>
+</div>
+
+<div id="crt-overlay">
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+  <div class="flicker"></div>
+</div>
+
+<script>
+const timerEl = document.getElementById('timer');
+const target = new Date('2026-09-18T00:00:00');
+
+function pad(n) {
+  return String(n).padStart(2, '0');
+}
+
+function update() {
+  const now = new Date();
+  let diff = target - now;
+
+  if (diff <= 0) {
+    timerEl.textContent = '00:00:00:00';
+    timerEl.setAttribute('data-glitchtext', '00:00:00:00');
+    return;
+  }
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  diff -= days * (1000 * 60 * 60 * 24);
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  diff -= hours * (1000 * 60 * 60);
+  const minutes = Math.floor(diff / (1000 * 60));
+  diff -= minutes * (1000 * 60);
+  const seconds = Math.floor(diff / 1000);
+
+  const str = `${pad(days)}:${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+  timerEl.textContent = str;
+  timerEl.setAttribute('data-glitchtext', str);
+}
+
+update();
+setInterval(update, 1000);
+
+// glitch ocasional no timer
+setInterval(() => {
+  if (Math.random() < 0.25) {
+    timerEl.classList.remove('txt-glitch');
+    void timerEl.offsetWidth;
+    timerEl.classList.add('txt-glitch');
+    setTimeout(() => timerEl.classList.remove('txt-glitch'), 250);
+  }
+}, 2200);
+</script>
+
+</body>
+</html>
