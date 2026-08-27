@@ -301,10 +301,10 @@
 <div id="screen-flash"></div>
 
 <div id="audio-player">
-  <div id="audio-label">that day.ogg</div>
+  <div id="audio-label">that_day.ogg</div>
   <button id="play-btn" title="tocar">▶</button>
   <audio id="audio" loop>
-    <source src="assets/that day.ogg" type="audio/ogg">
+    <source src="assets/that_day.ogg" type="audio/ogg">
   </audio>
 </div>
 
@@ -452,8 +452,28 @@
   const playBtn = document.getElementById('play-btn');
   let playing   = false;
 
+  function startAudio() {
+    audio.play().then(() => {
+      playBtn.textContent = '◼';
+      playBtn.classList.add('playing');
+      playing = true;
+    }).catch(() => {
+      document.addEventListener('click', () => {
+        if (!playing) {
+          audio.play();
+          playBtn.textContent = '◼';
+          playBtn.classList.add('playing');
+          playing = true;
+        }
+      }, { once: true });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', startAudio);
+
   // ── player ──────────────────────────────────────────────────────────
-  playBtn.addEventListener('click', () => {
+  playBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
     if (playing) {
       audio.pause();
       playBtn.textContent = '▶';
