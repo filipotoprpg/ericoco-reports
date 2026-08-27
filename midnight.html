@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>...</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+    font-family: 'Courier New', Courier, monospace;
+  }
+
+  #screen {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  #text {
+    color: #d6d6d6;
+    font-size: clamp(16px, 2.4vw, 26px);
+    text-align: center;
+    max-width: 80%;
+    line-height: 1.6;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+    text-shadow: 0 0 8px rgba(255,255,255,0.15);
+    letter-spacing: 0.5px;
+    position: relative;
+    z-index: 5;
+  }
+
+  #text.visible { opacity: 1; }
+
+  /* glitch ocasional no texto */
+  #text.txt-glitch {
+    animation: textGlitch 0.25s steps(2, end) 1;
+  }
+
+  #text.txt-glitch::before,
+  #text.txt-glitch::after {
+    content: attr(data-glitchtext);
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: 100%;
+    opacity: 0.7;
+  }
+
+  #text.txt-glitch::before {
+    color: #ff2b2b;
+    clip-path: polygon(0 10%, 100% 10%, 100% 40%, 0 40%);
+    transform: translate(calc(-50% - 4px), -2px);
+  }
+
+  #text.txt-glitch::after {
+    color: #2bd7ff;
+    clip-path: polygon(0 60%, 100% 60%, 100% 90%, 0 90%);
+    transform: translate(calc(-50% + 4px), 2px);
+  }
+
+  @keyframes textGlitch {
+    0%   { transform: translate(0,0); }
+    25%  { transform: translate(-2px, 1px); }
+    50%  { transform: translate(2px, -1px); }
+    75%  { transform: translate(-1px, -1px); }
+    100% { transform: translate(0,0); }
+  }
+
+  #options {
+    margin-top: 50px;
+    display: flex;
+    gap: 60px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1s ease;
+    position: relative;
+    z-index: 5;
+  }
+
+  #options.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .opt {
+    background: transparent;
+    border: 1px solid #555;
+    color: #ccc;
+    font-family: inherit;
+    font-size: 16px;
+    letter-spacing: 3px;
+    padding: 10px 28px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .opt:hover {
+    border-color: #eee;
+    color: #fff;
+    text-shadow: 0 0 6px #fff;
+  }
+
+  #jumpimg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+    filter: contrast(1.4) brightness(0.9);
+    z-index: 20;
+  }
+
+  /* ---------- CRT / SCANLINE ---------- */
+  #crt-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  #crt-overlay .scanlines {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.0) 0px,
+      rgba(0,0,0,0.15) 1px,
+      rgba(0,0,0,0.0) 2px,
+      rgba(0,0,0,0.0) 3px
+    );
+    mix-blend-mode: multiply;
+    animation: scanlineShift 8s linear infinite;
+  }
+
+  @keyframes scanlineShift {
+    0%   { background-position: 0 0; }
+    100% { background-position: 0 100px; }
+  }
+
+  #crt-overlay .vignette {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(0,0,0,0.75) 100%);
+  }
+
+  #crt-overlay .flicker {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(255,255,255,0.02);
+    animation: crtFlicker 6s infinite;
+  }
+
+  @keyframes crtFlicker {
+    0%, 100% { opacity: 0; }
+    92% { opacity: 0; }
+    93% { opacity: 1; }
+    94% { opacity: 0; }
+    97% { opacity: 0; }
+    98% { opacity: 0.6; }
+    99% { opacity: 0; }
+  }
+
+  #crt-overlay .rgbsplit {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    box-shadow: inset 0 0 120px rgba(0,0,0,0.9);
+  }
+
+  #screen::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.25) 50%);
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 11;
+  }
+
+  /* leve curvatura/borda de tubo */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    box-shadow: inset 0 0 200px rgba(0,0,0,0.9);
+    pointer-events: none;
+    z-index: 12;
+  }
+  /* ------------------------------------ */
+
+  /* efeito de glitch geral (jumpscare) */
+  @keyframes shake {
+    0% { transform: translate(0,0); }
+    10% { transform: translate(-8px,4px); }
+    20% { transform: translate(6px,-6px); }
+    30% { transform: translate(-10px,-2px); }
+    40% { transform: translate(8px,6px); }
+    50% { transform: translate(-4px,8px); }
+    60% { transform: translate(10px,-4px); }
+    70% { transform: translate(-6px,-8px); }
+    80% { transform: translate(4px,10px); }
+    90% { transform: translate(-8px,2px); }
+    100% { transform: translate(0,0); }
+  }
+
+  @keyframes flicker {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+    20%, 22%, 24%, 55% { opacity: 0.1; }
+  }
+
+  .glitching #screen {
+    animation: shake 0.15s infinite;
+  }
+
+  .glitching #text,
+  .glitching #options {
+    display: none;
+  }
+
+  .glitching {
+    animation: flicker 0.4s infinite;
+  }
+
+  .glitch-noise {
+    position: fixed;
+    top:0; left:0; width:100%; height:100%;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,0.03) 0px,
+      rgba(255,255,255,0.03) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    mix-blend-mode: overlay;
+    display: none;
+    pointer-events: none;
+    z-index: 21;
+  }
+
+  .glitching .glitch-noise { display: block; }
+
+  #whiteout {
+    position: fixed;
+    top:0; left:0; width:100%; height:100%;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.8s ease;
+    z-index: 50;
+  }
+
+  #finalcode {
+    position: fixed;
+    top:50%; left:50%;
+    transform: translate(-50%,-50%);
+    color: #111;
+    font-size: clamp(18px, 3vw, 32px);
+    letter-spacing: 2px;
+    display: none;
+    z-index: 51;
+    font-family: 'Courier New', Courier, monospace;
+  }
+
+  #finalcode.visible { display: block; }
+</style>
+</head>
+<body>
+
+<div id="screen">
+  <div id="text"></div>
+  <div id="options">
+    <button class="opt" id="btnSim">SIM</button>
+    <button class="opt" id="btnNao">NÃO</button>
+  </div>
+  <img id="jumpimg" src="assets/jumpscare.png" alt="">
+  <div class="glitch-noise"></div>
+</div>
+
+<div id="crt-overlay">
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+  <div class="flicker"></div>
+  <div class="rgbsplit"></div>
+</div>
+
+<div id="whiteout"></div>
+<div id="finalcode">erico.site/him</div>
+
+<audio id="jumpsound" src="assets/jumpscare.ogg" preload="auto"></audio>
+
+<script>
+const textEl = document.getElementById('text');
+const optionsEl = document.getElementById('options');
+const btnSim = document.getElementById('btnSim');
+const btnNao = document.getElementById('btnNao');
+const body = document.body;
+const jumpimg = document.getElementById('jumpimg');
+const jumpsound = document.getElementById('jumpsound');
+const whiteout = document.getElementById('whiteout');
+const finalcode = document.getElementById('finalcode');
+
+function showText(str) {
+  return new Promise(resolve => {
+    textEl.classList.remove('visible');
+    setTimeout(() => {
+      textEl.textContent = str;
+      textEl.setAttribute('data-glitchtext', str);
+      textEl.classList.add('visible');
+      resolve();
+    }, 700);
+  });
+}
+
+function hideOptions() {
+  optionsEl.classList.remove('visible');
+}
+
+function showOptionsAfter(delayMs) {
+  return new Promise(resolve => {
+    hideOptions();
+    setTimeout(() => {
+      optionsEl.classList.add('visible');
+      resolve();
+    }, delayMs);
+  });
+}
+
+function wait(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function setHandlers(onSim, onNao) {
+  btnSim.onclick = () => { hideOptions(); onSim(); };
+  btnNao.onclick = () => { hideOptions(); onNao(); };
+}
+
+// glitch aleatório no texto atual, de vez em quando
+setInterval(() => {
+  if (textEl.classList.contains('visible') && Math.random() < 0.35) {
+    textEl.classList.remove('txt-glitch');
+    void textEl.offsetWidth; // força reflow pra reiniciar a animação
+    textEl.classList.add('txt-glitch');
+    setTimeout(() => textEl.classList.remove('txt-glitch'), 250);
+  }
+}, 1800);
+
+async function stage1() {
+  await showText('você consegue me ouvir?');
+  await showOptionsAfter(4000 + Math.random() * 3000);
+  setHandlers(stage2_sim, stage_end_silent);
+}
+
+async function stage_end_silent() {
+  textEl.classList.remove('visible');
+  // fica só preto, para sempre
+}
+
+async function stage2_sim() {
+  await showText('que alívio... eu estou preso aqui faz muito tempo... tempo demais');
+  await wait(3000);
+  await showText('mas eu bolei... eu bolei um plano pra conseguir sair daqui... quer ouvir?');
+  await showOptionsAfter(4000 + Math.random() * 3000);
+  setHandlers(stage3_sim, stage3_nao_jumpscare);
+}
+
+async function stage3_nao_jumpscare() {
+  textEl.classList.remove('visible');
+  jumpsound.currentTime = 0;
+  jumpsound.play().catch(() => {});
+  jumpimg.style.display = 'block';
+  body.classList.add('glitching');
+
+  await wait(1800);
+
+  window.location.href = 'about:blank';
+  setTimeout(() => { window.close(); }, 50);
+}
+
+async function stage3_sim() {
+  await showText('obrigado... eu não tenho palavras pra te agradecer...');
+  await wait(3000);
+  await showText('mas... droga, ele está vindo... ele vai acender a tela-');
+  await wait(2200);
+
+  textEl.classList.remove('visible');
+  whiteout.style.opacity = '1';
+
+  await wait(6000);
+
+  finalcode.classList.add('visible');
+}
+
+stage1();
+</script>
+
+</body>
+</html>
