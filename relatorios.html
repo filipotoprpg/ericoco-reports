@@ -1,20 +1,17 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta property="og:title" content="Ericoco Daily Reports">
-<meta property="og:description" content="hehe">
-<meta property="og:image" content="https://erico.site/assets/imgteste.png">
-<meta property="og:url" content="https://erico.site/">
-<meta property="og:site_name" content="Ericoco Daily Reports">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Ericoco Daily Reports">
-<meta name="twitter:description" content="hehe">
-<meta name="twitter:image" content="https://erico.site/assets/imgteste.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Relatórios — Ericoco Daily Reports</title>
-<link rel="icon" href="assets/GRSrswl.png">
+<link rel="icon" type="image/png" href="assets/avatar.png">
 <link rel="stylesheet" href="style.css">
+<style>
+  :root { --gold: #f5c842; --gold-deep: #7a5e00; }
+  .archive-month-label { font-family:'Anton',sans-serif; font-size:13px; letter-spacing:.14em; color:var(--grey); margin:0 0 10px 4px; }
+  .archive-month-label.current { color:var(--gold); }
+  .archive + .archive { margin-top: 10px; }
+</style>
 </head>
 <body class="home">
 
@@ -27,8 +24,8 @@
       <a class="nav-logo" href="index.html"><span class="nav-dot"></span>ERICOCO <span>DAILY REPORTS</span></a>
       <div class="nav-links">
         <a href="index.html">HOME</a>
-        <a href="relatorios.html">CASOS</a>
-        <a href="sobre.html">SOBRE</a>
+        <a href="relatorios">CASOS</a>
+        <a href="sobre">SOBRE</a>
       </div>
     </div>
   </nav>
@@ -42,59 +39,46 @@
     </div>
 
     <div class="archive">
-      <p class="archive-label">AGOSTO 2026</p>
+      <p class="archive-label archive-month-label current">OUTUBRO 2026</p>
       <div class="day-grid">
-        <a class="day-btn" href="relatorio-2026-08-27b.html">
-          <span class="day-num">27</span>
-          <span class="day-month">AGO</span>
-          <span class="day-tag">PARTE II</span>
+        <a class="day-btn" href="relatorio-2026-10-08" style="border-color:var(--gold-deep)">
+          <span class="day-num" style="color:var(--gold)">08</span>
+          <span class="day-month">OUT</span>
+          <span class="day-tag" style="color:var(--gold);border-color:var(--gold-deep);background:rgba(245,200,66,0.08)">HISTÓRICO</span>
         </a>
-        
-        <a class="day-btn" href="relatorio-2026-08-27.html">
-          <span class="day-num">27</span>
-          <span class="day-month">AGO</span>
-          <span class="day-tag">CRÍTICO</span>
-        </a>
+      </div>
+    </div>
 
-        <a class="day-btn" href="relatorio-2026-08-20.html">
-          <span class="day-num">20</span>
-          <span class="day-month">AGO</span>
-          <span class="day-tag">BÁSICO</span>
-        </a>
-
-        <a class="day-btn" href="relatorio-2026-08-18.html">
-          <span class="day-num">18</span>
-          <span class="day-month">AGO</span>
-          <span class="day-tag">CRÍTICO</span>
-        </a>
-        
-        <a class="day-btn" href="relatorio-2026-08-17.html">
+    <div class="archive">
+      <p class="archive-label archive-month-label">AGOSTO 2026</p>
+      <div class="day-grid">
+        <a class="day-btn" href="relatorio-2026-08-17">
           <span class="day-num">17</span>
           <span class="day-month">AGO</span>
           <span class="day-tag">CRÍTICO</span>
         </a>
-
-        <a class="day-btn" href="relatorio-2026-08-03.html">
-          <span class="day-num">03</span>
+        <a class="day-btn" href="relatorio-2026-08-18">
+          <span class="day-num">18</span>
           <span class="day-month">AGO</span>
-          <span class="day-tag">PADRÃO</span>
-        </a>
-
-      </div>
-        <p class="archive-label">JUNHO 2026</p>
-      <div class="day-grid">
-        <a class="day-btn" href="relatorio-2026-06-30.html">
-          <span class="day-num">30</span>
-          <span class="day-month">JUN</span>
           <span class="day-tag">CRÍTICO</span>
         </a>
+      </div>
+    </div>
 
+    <div class="archive">
+      <p class="archive-label archive-month-label">JUNHO 2026</p>
+      <div class="day-grid">
+        <a class="day-btn" href="relatorio-2026-06-30">
+          <span class="day-num">30</span>
+          <span class="day-month">JUN</span>
+          <span class="day-tag">SUSPEITO</span>
+        </a>
       </div>
     </div>
 
     <div class="site-footer">
       <span>ERICOCO DAILY REPORTS · ARQUIVO INTERNO</span>
-      <span>6 CASOS REGISTRADOS</span>
+      <span>3 CASOS REGISTRADOS</span>
     </div>
 
   </div>

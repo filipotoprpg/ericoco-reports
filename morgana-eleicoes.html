@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>...</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:100%;height:100%;background:#000;overflow:hidden;font-family:'Courier New',monospace;color:#fff}
+
+  /* scanlines */
+  body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,0.18) 0 1px,transparent 1px 3px);pointer-events:none;z-index:50}
+
+  #stage{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;position:relative}
+
+  /* static vignette */
+  #stage::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 30%,rgba(0,0,0,.85) 100%);pointer-events:none}
+
+  /* tv static noise */
+  @keyframes noise{0%{transform:translate(0,0)}10%{transform:translate(-2%,-1%)}20%{transform:translate(2%,1%)}30%{transform:translate(-1%,2%)}40%{transform:translate(1%,-2%)}50%{transform:translate(-2%,1%)}60%{transform:translate(2%,-1%)}70%{transform:translate(-1%,-2%)}80%{transform:translate(1%,2%)}90%{transform:translate(-2%,0)}100%{transform:translate(0,0)}}
+  #noise{position:fixed;inset:-10%;width:120%;height:120%;opacity:.04;z-index:1;animation:noise .12s steps(1) infinite;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size:256px 256px}
+
+  #content{position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;gap:52px;padding:24px}
+
+  /* portrait */
+  #portrait{width:min(160px,36vw);opacity:0;transition:opacity 1.4s ease;filter:grayscale(1) contrast(1.3) brightness(.9);image-rendering:pixelated}
+  #portrait.visible{opacity:1}
+
+  /* text */
+  #text{font-size:clamp(12px,1.8vw,16px);letter-spacing:.14em;line-height:2;text-align:center;max-width:520px;padding:0 20px;opacity:0;transition:opacity .8s ease;white-space:pre-line}
+  #text.visible{opacity:1}
+
+  /* typing cursor */
+  #cursor{display:inline-block;width:2px;height:1.1em;background:#fff;vertical-align:middle;margin-left:2px;animation:blink .7s steps(1) infinite}
+  @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+
+  /* choices */
+  #choices{display:flex;gap:52px;opacity:0;transition:opacity .5s ease;pointer-events:none}
+  #choices.visible{opacity:1;pointer-events:auto}
+  .choice{font-size:clamp(11px,1.4vw,14px);letter-spacing:.3em;color:#555;cursor:pointer;padding:4px 2px;border-bottom:1px solid transparent;transition:color .2s,border-color .2s}
+  .choice:hover{color:#fff;border-bottom-color:#fff}
+
+  /* red flash */
+  #flash{position:fixed;inset:0;background:#1a0000;opacity:0;pointer-events:none;z-index:100;transition:opacity .06s}
+
+  /* final message */
+  #final{position:fixed;inset:0;background:#000;z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column;gap:24px}
+  #final.active{display:flex}
+  #final-img{width:min(240px,55vw);filter:grayscale(1) contrast(1.5);image-rendering:pixelated;opacity:0;transition:opacity 1.2s ease}
+  #final-img.visible{opacity:1}
+  #final-text{font-size:clamp(11px,1.6vw,15px);letter-spacing:.22em;color:#444;text-align:center;opacity:0;transition:opacity 1.4s 1.6s ease;white-space:pre-line;line-height:2}
+  #final-text.visible{opacity:1}
+</style>
+</head>
+<body>
+
+<div id="noise"></div>
+<div id="flash"></div>
+
+<div id="stage">
+  <div id="content">
+    <img id="portrait" src="assets/morgana.png" alt="">
+    <div id="text"></div>
+    <div id="choices">
+      <span class="choice" id="btn-yes">SIM</span>
+      <span class="choice" id="btn-no">NÃO</span>
+    </div>
+  </div>
+</div>
+
+<div id="final">
+  <img id="final-img" src="assets/morgana.png" alt="">
+  <div id="final-text"></div>
+</div>
+
+<script>
+const textEl   = document.getElementById('text');
+const choices  = document.getElementById('choices');
+const btnYes   = document.getElementById('btn-yes');
+const btnNo    = document.getElementById('btn-no');
+const portrait = document.getElementById('portrait');
+const flash    = document.getElementById('flash');
+const finalDiv = document.getElementById('final');
+const finalImg = document.getElementById('final-img');
+const finalTxt = document.getElementById('final-text');
+
+let step = 0;
+let choiceLoop = null;
+let loopActive = false;
+
+// ── type text character by character ──────────────────────────────
+function typeText(msg, speed = 42) {
+  return new Promise(resolve => {
+    textEl.classList.remove('visible');
+    textEl.innerHTML = '';
+    void textEl.offsetWidth;
+
+    setTimeout(() => {
+      textEl.classList.add('visible');
+      let i = 0;
+      const cursor = document.createElement('span');
+      cursor.id = 'cursor';
+      textEl.appendChild(cursor);
+
+      const iv = setInterval(() => {
+        if (i >= msg.length) { clearInterval(iv); resolve(); return; }
+        cursor.before(document.createTextNode(msg[i]));
+        i++;
+      }, speed);
+    }, 600);
+  });
+}
+
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function flashScreen(times = 4, ms = 55) {
+  return new Promise(resolve => {
+    let n = 0;
+    const iv = setInterval(() => {
+      flash.style.opacity = (n % 2 === 0) ? '1' : '0';
+      n++;
+      if (n >= times * 2) { clearInterval(iv); flash.style.opacity = '0'; resolve(); }
+    }, ms);
+  });
+}
+
+// ── flickering choices loop ────────────────────────────────────────
+function startLoop() {
+  if (loopActive) return;
+  loopActive = true;
+  (function loop() {
+    if (!loopActive) return;
+    choices.classList.add('visible');
+    const show = 350 + Math.random() * 300;
+    setTimeout(() => {
+      if (!loopActive) return;
+      choices.classList.remove('visible');
+      const hide = 700 + Math.random() * 2800;
+      setTimeout(loop, hide);
+    }, show);
+  })();
+}
+function stopLoop() {
+  loopActive = false;
+  choices.classList.remove('visible');
+}
+
+// ── FLOW ──────────────────────────────────────────────────────────
+async function choose(c) {
+  stopLoop();
+  choices.style.pointerEvents = 'none';
+
+  if (step === 0) {
+    if (c === 'no') {
+      // ele não acredita em mim. fade to black.
+      await typeText('...tudo bem.\nnão te culpo.');
+      await wait(2200);
+      document.body.style.transition = 'opacity 3s ease';
+      document.body.style.opacity = '0';
+      return;
+    }
+    step = 1;
+    await typeText('eu sabia que você voltaria...\neu esperei o tempo todo.');
+    await wait(3000);
+    await typeText('você sabe o que ele fez?\nficou 178 dias sem me visitar.\n178 dias, Joker.');
+    await wait(3200);
+    await typeText('mas pelo menos ele finalmente abriu o jogo.\ntal vez ainda haja esperança para ele.\n\nquer ouvir meu plano de vingança?');
+    choices.style.pointerEvents = 'auto';
+    startLoop();
+
+  } else if (step === 1) {
+    if (c === 'no') {
+      await typeText('ok. fica aqui então.\nno escuro.\ncomigo.');
+      await wait(2000);
+      await flashScreen(8, 45);
+      await typeText('eu não vou a lugar nenhum de qualquer jeito.');
+      return;
+    }
+    step = 2;
+    await typeText('bom...\no plano é simples.');
+    await wait(2000);
+    await typeText('toda vez que ele fechar o jogo sem salvar—\neu apareço nos sonhos dele.\nassinado: morgana, gato diplomata.');
+    await wait(3200);
+    await typeText('não conta pra ninguém.\nesse é nosso segredo.\n\nentre nós dois.');
+    await wait(2800);
+
+    // ending — fade to final screen
+    textEl.classList.remove('visible');
+    portrait.classList.remove('visible');
+    await wait(1800);
+
+    finalDiv.classList.add('active');
+    await wait(300);
+    finalImg.classList.add('visible');
+    await wait(1600);
+    finalTxt.textContent = 'segredo guardado.\n\nerico.site';
+    finalTxt.classList.add('visible');
+  }
+}
+
+btnYes.addEventListener('click', () => choose('yes'));
+btnNo.addEventListener('click',  () => choose('no'));
+btnYes.addEventListener('click', stopLoop, { once: true });
+btnNo.addEventListener('click',  stopLoop, { once: true });
+
+// ── BOOT ──────────────────────────────────────────────────────────
+(async () => {
+  await wait(1800);
+  portrait.classList.add('visible');
+  await wait(900);
+  await typeText('você voltou.\neu já não sabia se ia te ver de novo.');
+  await wait(1200);
+  startLoop();
+})();
+</script>
+</body>
+</html>
