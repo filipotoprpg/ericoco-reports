@@ -7,46 +7,136 @@
 <link rel="icon" type="image/png" href="assets/avatar.png">
 <link rel="stylesheet" href="style.css">
 <style>
-  /* ── special gold accent for historic reports ── */
-  :root { --gold: #f5c842; --gold-deep: #7a5e00; }
-  .rank-plate-gold {
-    margin: 0 26px;
-    margin-top: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 10px 14px;
-    background: rgba(245,200,66,0.10);
-    border-left: 3px solid var(--gold);
+  :root { --festa: #ff3c6f; --festa2: #7c3aff; --festa3: #00d9ff; --gold: #f5c842; }
+
+  body { overflow-x: hidden; }
+
+  /* ── CONFETE ── */
+  #confete-canvas {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 9999;
+  }
+
+  /* ── BOAS-VINDAS BANNER ── */
+  .festa-banner {
+    width: 100%; max-width: 640px;
+    background: linear-gradient(135deg, #ff3c6f22, #7c3aff22);
+    border: 2px solid var(--festa);
+    padding: 18px 24px;
+    margin-bottom: 18px;
+    text-align: center;
+    animation: pulse-banner 1.2s ease-in-out infinite alternate;
+  }
+  .festa-banner .emoji-row { font-size: 32px; letter-spacing: 6px; margin-bottom: 8px; }
+  .festa-banner .grito {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(22px, 6vw, 36px);
+    color: var(--festa);
+    letter-spacing: .04em;
+    line-height: 1.1;
+    text-shadow: 0 0 20px rgba(255,60,111,0.6);
+  }
+  .festa-banner .sub-grito {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--festa3);
+    letter-spacing: .14em;
+    margin-top: 6px;
+  }
+  @keyframes pulse-banner {
+    from { box-shadow: 0 0 10px rgba(255,60,111,0.3); }
+    to   { box-shadow: 0 0 30px rgba(255,60,111,0.7), 0 0 60px rgba(124,58,255,0.3); }
+  }
+
+  /* ── STAMP ESPECIAL ── */
+  .stamp-festa {
+    position: absolute; top: 90px; right: -14px; transform: rotate(-8deg);
+    border: 3px solid var(--festa); color: var(--festa);
+    font-family: 'Anton', sans-serif; font-size: 11px; letter-spacing: .08em;
+    padding: 6px 10px; background: rgba(10,10,11,0.92); text-align: center; z-index: 2;
+    animation: stamp-tremer .15s ease-in-out infinite alternate;
+  }
+  @keyframes stamp-tremer {
+    from { transform: rotate(-8deg) scale(1); }
+    to   { transform: rotate(-7deg) scale(1.03); }
+  }
+
+  /* ── RANK PLATE ESPECIAL ── */
+  .rank-plate-festa {
+    margin: 0 26px; margin-top: 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; padding: 10px 14px;
+    background: linear-gradient(90deg, rgba(255,60,111,0.12), rgba(124,58,255,0.08));
+    border-left: 3px solid var(--festa);
     clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%, 0 calc(100% - 10px));
   }
-  .rank-plate-gold .rank-left { font-size:10.5px; color:var(--grey); letter-spacing:.14em; text-transform:uppercase; }
-  .rank-plate-gold .rank-left b { display:block; font-family:'Anton',sans-serif; font-size:16px; color:var(--gold); letter-spacing:.04em; margin-top:2px; }
-  .rank-plate-gold .rank-level { font-family:'Anton',sans-serif; font-size:28px; color:var(--gold); text-align:right; letter-spacing:.02em; line-height:1; margin-right:18px; }
-  .rank-plate-gold .rank-level small { display:block; font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--grey); letter-spacing:.14em; font-weight:700; margin-top:3px; }
-  .stamp-gold {
-    position:absolute; top:96px; right:-14px; transform:rotate(-10deg);
-    border:3px solid var(--gold); color:var(--gold);
-    font-family:'Anton',sans-serif; font-size:13px; letter-spacing:.08em;
-    padding:6px 10px; background:rgba(10,10,11,0.85); text-align:center; z-index:2;
+  .rank-plate-festa .rank-left { font-size: 10.5px; color: var(--grey); letter-spacing: .14em; text-transform: uppercase; }
+  .rank-plate-festa .rank-left b { display: block; font-family: 'Anton', sans-serif; font-size: 16px; color: var(--festa); letter-spacing: .04em; margin-top: 2px; }
+  .rank-plate-festa .rank-level { font-family: 'Anton', sans-serif; font-size: 28px; color: var(--festa); text-align: right; letter-spacing: .02em; line-height: 1; margin-right: 18px; }
+  .rank-plate-festa .rank-level small { display: block; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--grey); letter-spacing: .14em; font-weight: 700; margin-top: 3px; }
+
+  /* ── NARRATIVA EM MODO FESTA ── */
+  .grito-inline {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(18px, 5vw, 28px);
+    color: var(--festa);
+    letter-spacing: .04em;
+    line-height: 1.15;
+    margin: 20px 0;
+    text-shadow: 0 0 15px rgba(255,60,111,0.4);
   }
-  .conclusion-gold {
-    margin-top:20px; padding:14px 16px;
-    background:rgba(245,200,66,0.07);
-    border:1px solid var(--gold-deep);
-    font-size:13px; line-height:1.6; color:#eae8e1; position:relative;
+  .grito-inline span { color: var(--festa3); }
+  .grito-inline em { color: var(--festa2); font-style: normal; }
+
+  /* ── SCREENSHOTS ── */
+  .screenshots-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin: 16px 0;
   }
-  .conclusion-gold b { color:var(--gold); display:block; font-family:'Anton',sans-serif; letter-spacing:.08em; font-size:12px; margin-bottom:6px; }
-  .footer-gold { display:flex; justify-content:space-between; align-items:center; padding:14px 26px 22px; font-size:10px; color:var(--grey-dim); letter-spacing:.08em; border-top:1px dashed var(--grey-dim); }
-  .footer-gold span:last-child { color:var(--gold); }
-  .card-gold::after { background: repeating-linear-gradient(-45deg, var(--gold) 0 10px, var(--black) 10px 20px) !important; }
-  .screenshots-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0; }
-  .screenshots-grid img { width:100%; border:1px solid var(--grey-dim); filter:saturate(0.9); }
-  @media(max-width:480px){ .screenshots-grid { grid-template-columns:1fr; } }
+  .screenshots-grid img {
+    width: 100%; border: 2px solid var(--festa);
+    filter: saturate(1.1);
+    box-shadow: 0 0 12px rgba(255,60,111,0.3);
+  }
+  @media(max-width:480px){ .screenshots-grid { grid-template-columns: 1fr; } }
+
+  /* ── CONCLUSÃO ── */
+  .conclusion-festa {
+    margin-top: 20px; padding: 14px 16px;
+    background: linear-gradient(135deg, rgba(255,60,111,0.08), rgba(124,58,255,0.05));
+    border: 1px solid var(--festa);
+    font-size: 13px; line-height: 1.6; color: #eae8e1;
+  }
+  .conclusion-festa b { color: var(--festa); display: block; font-family: 'Anton', sans-serif; letter-spacing: .08em; font-size: 12px; margin-bottom: 6px; }
+
+  .footer-festa {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 26px 22px;
+    font-size: 10px; color: var(--grey-dim); letter-spacing: .08em;
+    border-top: 1px dashed var(--festa);
+  }
+  .footer-festa span:last-child { color: var(--festa); }
+
+  /* ── STATUS COM COR ── */
+  .v-festa { color: var(--festa) !important; font-weight: 800 !important; }
+  .v-azul { color: var(--festa3) !important; font-weight: 700 !important; }
+
+  /* ── THOUGHT DIFERENTE ── */
+  .thought-festa {
+    border-left: 3px solid var(--festa3);
+    padding: 10px 14px;
+    font-family: 'Caveat', cursive;
+    font-size: 19px;
+    color: var(--festa3);
+    background: rgba(0,217,255,0.06);
+    margin: 16px 0;
+    line-height: 1.4;
+  }
 </style>
 </head>
 <body>
+
+  <canvas id="confete-canvas"></canvas>
 
   <div class="bg-image"></div>
   <div class="bg-vignette"></div>
@@ -55,13 +145,20 @@
   <div class="page-wrap">
     <div class="back-nav"><a href="relatorios">← VOLTAR AO ARQUIVO</a></div>
 
-    <div class="card card-gold" id="card">
-      <div class="header">
+    <div class="festa-banner">
+      <div class="emoji-row">🎉🎊🎮🎊🎉</div>
+      <div class="grito">ELE ABRIU O PERSONA 5!!</div>
+      <div class="grito" style="color:var(--festa3);font-size:clamp(14px,4vw,22px)">178 DIAS DEPOIS MAS FINALMENTE!!</div>
+      <div class="sub-grito">08/10/2026 · 20:49 · DIA QUE MUDOU TUDO</div>
+    </div>
+
+    <div class="card" id="card" style="border-color:var(--festa)">
+      <div class="header" style="border-bottom-color:var(--festa)">
         <div class="id-block">
           <img class="avatar" src="assets/avatar.png" alt="Avatar de Ericoco">
           <div>
-            <div class="kicker" style="color:var(--gold)">RELATÓRIO ESPECIAL — EVENTO HISTÓRICO</div>
-            <h1 class="title">ERI<span style="color:var(--gold)">COCO</span></h1>
+            <div class="kicker" style="color:var(--festa)">RELATÓRIO ESPECIAL — EVENTO HISTÓRICO</div>
+            <h1 class="title">ERI<span style="color:var(--festa)">COCO</span></h1>
             <div class="handle">@ericoco</div>
           </div>
         </div>
@@ -72,67 +169,197 @@
         </div>
       </div>
 
-      <div class="stamp-gold">EVENTO<br>HISTÓRICO</div>
+      <div class="stamp-festa">EVENTO<br>HISTÓRICO</div>
 
-      <div class="rank-plate-gold">
+      <div class="rank-plate-festa">
         <div class="rank-left">TIER ATUAL<b>REDENÇÃO TARDIA</b></div>
         <div class="rank-level">LV. 178<small>DIAS ATÉ A REDENÇÃO</small></div>
       </div>
 
       <div class="meta-row">
-        <div>OBJETIVO: <b>🎮 Persona 5 Royal</b> <span style="color:var(--gold);font-weight:800">✅ FINALMENTE INICIADO</span></div>
+        <div>OBJETIVO: <b>🎮 Persona 5 Royal</b> <span style="color:var(--festa);font-weight:800">✅ FINALMENTE!!! UHUUUUL!!!</span></div>
       </div>
 
       <div class="section">
-        <p class="section-label" style="color:var(--gold)">COMUNICADO ESPECIAL</p>
-        <p class="narrative">Antes de qualquer coisa, este arquivo gostaria de se desculpar pela ausência prolongada. Semanas sem novos relatórios. Dias sem atualizações. O arquivo entrou em estado de hibernação forçada. <b>Pedimos desculpas.</b></p>
-        <p class="narrative">Mas hoje, 8 de outubro de 2026, às <b>20:49</b> — tudo mudou.</p>
+        <p class="section-label" style="color:var(--festa)">O QUE ACONTECEU</p>
 
-        <div class="thought" style="border-color:var(--gold);color:var(--gold)">"Hoje eu vou jogar Persona 5."</div>
+        <div class="grito-inline">
+          GENTE. <span>GENTE.</span> ELE <em>REALMENTE</em> FEZ ISSO.
+        </div>
 
-        <p class="narrative">Após <b>178 dias</b> de vigilância contínua, desvios inexplicáveis, RPGs obscuros de PS2, estudos na faculdade, voos simulados e um número incalculável de outras desculpas — Ericoco abriu o Persona 5 Royal.</p>
+        <p class="narrative">Tá, antes de tudo: a gente sabe que faz tempo que não aparece por aqui. <b>Desculpa.</b> O arquivo dormiu. Mas olha o motivo pelo qual ele acordou — esse dia foi grande demais pra ficar sem registro.</p>
 
-        <p class="narrative">As evidências são irrefutáveis. O suspeito foi fotografado em flagrante, na tela de título do jogo, às 20:49 do dia 8 de outubro. Não há como negar. Não há como escapar. <b>Aconteceu.</b></p>
+        <div class="thought-festa">
+          "Hoje eu vou jogar Persona 5." — e pela primeira vez em 178 dias... ele foi.
+        </div>
+
+        <p class="narrative">Após <b>178 dias</b> de vigilância, de RPGs obscuros, de Ace Combat, de faculdade, de <i>Radiata Stories</i> que ninguém pediu — <b>Ericoco apertou play no Persona 5 Royal.</b> Às 20:49. Do dia 8 de outubro. De 2026. Quando ninguém mais acreditava.</p>
+
+        <div class="grito-inline" style="font-size:clamp(15px,4vw,22px)">
+          AS EVIDÊNCIAS SÃO IRREFUTÁVEIS. <span>NÃO TEM COMO NEGAR.</span>
+        </div>
 
         <div class="screenshots-grid">
           <img src="assets/p5-tela-titulo.jpg" alt="Tela de título do Persona 5 Royal">
           <img src="assets/p5-makoto.jpg" alt="Makoto Niijima no jogo">
         </div>
 
-        <div class="divider"></div>
+        <p class="narrative" style="font-size:11px;color:var(--grey);margin-top:4px">📸 flagrado em flagrante, sem álibi, sem desculpa</p>
 
-        <p class="section-label" style="color:var(--gold)">STATUS FINAL</p>
+        <div class="divider" style="border-color:var(--festa)"></div>
+
+        <p class="section-label" style="color:var(--festa)">STATUS FINAL</p>
         <div class="status-grid">
-          <div class="status-row"><span class="k">Persona 5 Royal</span><span class="v" style="color:var(--gold);font-weight:800">✅ INICIADO — DIA 1</span></div>
-          <div class="status-row"><span class="k">Dias de procrastinação</span><span class="v">178 dias (encerrado)</span></div>
-          <div class="status-row"><span class="k">Tier final da investigação</span><span class="v" style="color:var(--gold)">REDENÇÃO TARDIA</span></div>
-          <div class="status-row"><span class="k">Status do arquivo</span><span class="v">Missão cumprida — monitoramento continua</span></div>
+          <div class="status-row"><span class="k">Persona 5 Royal</span><span class="v v-festa">🎉 INICIADO — DIA 1 🎉</span></div>
+          <div class="status-row"><span class="k">178 dias de procrastinação</span><span class="v v-azul">oficialmente encerrados</span></div>
+          <div class="status-row"><span class="k">Tier final da investigação</span><span class="v v-festa">REDENÇÃO TARDIA</span></div>
+          <div class="status-row"><span class="k">Status do arquivo</span><span class="v">acordou do coma · monitorando progresso</span></div>
+          <div class="status-row"><span class="k">Próximo desvio esperado</span><span class="v" style="color:#aaa">quando ele largar o save sem terminar</span></div>
         </div>
 
-        <div class="conclusion-gold">
+        <div class="conclusion-festa">
           <b>CONCLUSÃO</b>
-          Ericoco finalmente fez o que deveria ter feito 178 dias atrás. O arquivo registra com alívio, orgulho e uma ponta de "cara, era só apertar play." A investigação não encerra — apenas muda de foco. Agora monitoramos quantas horas até ele largar o jogo de novo.
+          ERA SÓ APERTAR PLAY, ERICOCO. ERA SÓ ISSO. 178 dias. 178 dias pra apertar play. O arquivo não vai esquecer. Mas por hoje, celebramos. Hoje foi um dia bom.
         </div>
       </div>
 
       <div class="note-row">
         <div class="tyt-note">
           <img src="assets/takeyourtime.gif" alt="Take your time">
-          <p>178 dias depois...<br><b>finalmente</b></p>
+          <p>178 dias depois...<br><b>finalmente!!</b></p>
         </div>
 
         <div class="morgana-wrap">
-          <div class="bubble">eu sabia que você conseguiria, Joker... quer dizer, Ericoco</div>
+          <div class="bubble">eu sabia que você conseguiria, Joker... quer dizer, Ericoco. AGORA NÃO PARA!!</div>
           <img class="morgana-img" src="assets/morgana.png" alt="Morgana comentando o caso">
         </div>
       </div>
 
-      <div class="footer-gold">
+      <div class="footer-festa">
         <span>ERICOCO DAILY REPORTS · ARQUIVO INTERNO</span>
-        <span>HISTÓRICO</span>
+        <span>🎉 HISTÓRICO 🎉</span>
       </div>
     </div>
   </div>
+
+<script>
+// ── CONFETE ENGINE ──────────────────────────────────────────────────
+(function () {
+  var canvas = document.getElementById('confete-canvas');
+  var ctx = canvas.getContext('2d');
+  var W, H;
+  var pieces = [];
+  var cores = ['#ff3c6f','#7c3aff','#00d9ff','#f5c842','#ff8c00','#00ff88','#ff69b4'];
+  var emojis = ['🎉','🎊','🎮','⭐','🌟','✨','🎈'];
+  var rodando = true;
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function criarPeca(x) {
+    var isEmoji = Math.random() < 0.18;
+    return {
+      x: x !== undefined ? x : Math.random() * W,
+      y: -20,
+      vx: (Math.random() - 0.5) * 3.5,
+      vy: Math.random() * 3 + 2,
+      rot: Math.random() * Math.PI * 2,
+      vrot: (Math.random() - 0.5) * 0.18,
+      w: Math.random() * 10 + 5,
+      h: Math.random() * 5 + 3,
+      cor: cores[Math.floor(Math.random() * cores.length)],
+      alpha: 1,
+      isEmoji: isEmoji,
+      emoji: emojis[Math.floor(Math.random() * emojis.length)],
+      tipo: Math.floor(Math.random() * 3) // 0=rect, 1=circle, 2=linha
+    };
+  }
+
+  // burst inicial
+  for (var i = 0; i < 180; i++) {
+    var p = criarPeca();
+    p.y = Math.random() * H * 0.6;
+    p.vy = Math.random() * 5 + 1;
+    pieces.push(p);
+  }
+
+  var spawnTimer = 0;
+  var totalTime = 0;
+
+  function loop() {
+    if (!rodando) return;
+    ctx.clearRect(0, 0, W, H);
+
+    spawnTimer++;
+    totalTime++;
+
+    // spawn por 5 segundos (300 frames)
+    if (totalTime < 300 && spawnTimer % 3 === 0) {
+      for (var n = 0; n < 4; n++) {
+        pieces.push(criarPeca());
+      }
+    }
+
+    for (var i = pieces.length - 1; i >= 0; i--) {
+      var p = pieces[i];
+      p.x  += p.vx;
+      p.y  += p.vy;
+      p.rot += p.vrot;
+      p.vx += (Math.random() - 0.5) * 0.15;
+      if (p.y > H + 30) { pieces.splice(i, 1); continue; }
+
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+
+      if (p.isEmoji) {
+        ctx.font = '18px serif';
+        ctx.fillText(p.emoji, -9, 6);
+      } else if (p.tipo === 0) {
+        ctx.fillStyle = p.cor;
+        ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      } else if (p.tipo === 1) {
+        ctx.beginPath();
+        ctx.arc(0, 0, p.w/3, 0, Math.PI*2);
+        ctx.fillStyle = p.cor;
+        ctx.fill();
+      } else {
+        ctx.strokeStyle = p.cor;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-p.w/2, 0);
+        ctx.lineTo(p.w/2, 0);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    // para quando acabar os pedaços
+    if (pieces.length === 0 && totalTime > 300) {
+      rodando = false;
+      return;
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  // segundo burst ao dar scroll
+  var segundoBurst = false;
+  window.addEventListener('scroll', function() {
+    if (!segundoBurst && window.scrollY > 100) {
+      segundoBurst = true;
+      for (var i = 0; i < 80; i++) pieces.push(criarPeca());
+    }
+  });
+
+  requestAnimationFrame(loop);
+})();
+</script>
 
 </body>
 </html>
